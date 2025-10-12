@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 
+      MYSQL_DATABASE: vc_tkn
+      MYSQL_USER: vc-tkn-usr
+      MYSQL_PASSWORD: vc-tkn-pwd
+    ports:
+      - '3306:3306'
+    volumes:
+      - db-data:/var/lib/mysql
+
+  redis:
+    image: redis:7
+    ports:
+      - '6379:6379'
+
+  # Besu placeholder: configure sua própria rede Besu
+  besu:
+    image: hyperledger/besu:latest
+    command:
+      - --rpc-http-enabled
+      - --rpc-http-cors-origins='*'
+      - --rpc-http-api=ETH,NET,WEB3
+    ports:
+      - '8545:8545'
+    volumes:
+      - ./besu-data:/var/lib/besu
+
+volumes:
+  db-data:

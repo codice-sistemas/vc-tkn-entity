@@ -1,0 +1,19 @@
+{
+  "name": "indexer",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/indexer.ts",
+    "start": "node dist/indexer.js"
+  },
+  "dependencies": {
+    "ethers": "^6.7.0",
+    "prisma": "^5.0.0",
+    "@prisma/client": "^5.0.0",
+    "redis": "^4.6.0"
+  },
+  "devDependencies": {
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.5.0"
+  }
+}

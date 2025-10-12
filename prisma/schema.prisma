@@ -1,0 +1,38 @@
+// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql" 
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id        Int     @id @default(autoincrement())
+  name      String
+  doc       String  @unique
+  birthDate DateTime
+  password  String?
+  vcHash    String? @unique
+  ifHash    String? @unique
+  auth_sub  String? @unique
+  role      String?
+  classCode String  @db.Char(1)     
+  
+  @@index([classCode])
+}
+
+model Requests {
+  id               Int      @id @default(autoincrement())
+  from_aa          String
+  to_aa            String
+  message          String?
+  types_needed_json String?
+  types_granted_json String?
+  date_request     DateTime?
+  date_response    DateTime?
+
+  @@index([to_aa, date_response])
+  @@index([from_aa, to_aa, date_response])
+}
