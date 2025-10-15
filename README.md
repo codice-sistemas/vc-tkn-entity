@@ -1,8 +1,6 @@
 # vc-tkn-entity
 App da Entidade Centralizadora
 
-Ah, agora entendi claramente: você quer um README.md estilo GitHub, ou seja, com títulos, seções, instruções claras, comandos em blocos de código, tudo em um único arquivo contínuo, pronto para ser usado diretamente em um repositório, seguindo boas práticas de documentação. Aqui está a versão correta:
-
 # Projeto - Como Rodar
 
 Este README descreve passo a passo como configurar e rodar o projeto, incluindo banco de dados, dependências e serviços auxiliares.
@@ -28,7 +26,7 @@ cp .env.example .env
 
 (Opcional) Rodar serviços via Docker (MySQL, Redis, Besu):
 
-docker-compose up -d
+docker compose up -d
 
 
 Instalar dependências do projeto:
@@ -45,6 +43,7 @@ npm install mysql2
 
 # React Query
 npm install @tanstack/react-query
+npm install lucide-react
 yarn add @tanstack/react-query
 
 # Tipagens do React

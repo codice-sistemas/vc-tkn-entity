@@ -18,7 +18,6 @@ export default function Home() {
           <h1 className="text-3xl font-bold text-gray-900">Frontend Entidade Centralizadora</h1>
           <p className="mt-2 text-lg text-gray-600">Rede Sistema Nacional Blockchain</p>
         </div>
-
       </div>
 
       <div className="p-6">
@@ -34,7 +33,7 @@ export default function Home() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
 
-                <Link href="/gui/ifs" 
+                <Link href="/ifs" 
                 className="bg-blue-600 hover:bg-blue-700 p-4 rounded-lg text-white block hover:shadow-lg transition-all duration-200">
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
                     <BuildingOffice2Icon className="h-8 w-8 mx-auto mb-2 text-blue-600" />
@@ -43,7 +42,7 @@ export default function Home() {
                   </div>
                 </Link>     
 
-                <Link href="/gui/clients" 
+                <Link href="/clients" 
                 className="bg-green-600 hover:bg-green-700 p-4 rounded-lg text-white block hover:shadow-lg transition-all duration-200">
                   <div className="text-center p-4 bg-green-50 rounded-lg">
                     <UserIcon className="h-8 w-8 mx-auto mb-2 text-green-600" />
@@ -52,7 +51,7 @@ export default function Home() {
                   </div>
                 </Link>                
 
-                <Link href="/api/transactions"
+                <Link href="/transactions"
                 className="bg-purple-600 hover:bg-purple-700 p-4 rounded-lg text-white block hover:shadow-lg transition-all duration-200">
                   <div className="text-center p-4 bg-purple-50 rounded-lg">
                     <ShieldCheckIcon className="h-8 w-8 mx-auto mb-2 text-purple-600" />

@@ -21,7 +21,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         <div className="relative z-10 flex-shrink-0 flex h-16 bg-white shadow">
           <div className="flex-1 px-4 flex justify-between items-center">
             <div className="flex items-center">
-              <Link href="/dashboard" className="flex items-center">
+              <Link href="/" className="flex items-center">
                 <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
                   <svg
                     className="h-5 w-5 text-white"

@@ -1,21 +1,50 @@
-import { NextResponse } from 'next/server';
-import prisma from '@libs/prisma';
+import { ethers } from 'ethers';
 
-export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const page = Number(url.searchParams.get('page') || 1);
-  const limit = Math.min(Number(url.searchParams.get('limit') || 25), 100);
-  const skip = (page - 1) * limit;
+export async function GET() {
+  const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545');
 
-  const filters: any = {};
-  if (url.searchParams.get('status')) filters.status = url.searchParams.get('status');
+  const latestBlockNumber = await provider.getBlockNumber();
+  const transactions = [];
 
-  const items = await prisma.transaction.findMany({
-    where: filters,
-    orderBy: { createdAt: 'desc' },
-    skip,
-    take: limit
+  for (let i = latestBlockNumber; i > latestBlockNumber - 10; i--) {
+    let block;
+    try {
+      block = await provider.getBlock(i);
+    } catch (err) {
+      console.warn(`Bloco ${i} inválido, pulando.`, err.message);
+      continue;
+    }
+
+    if (!block || !block.transactions) continue;
+    // block.transactions é array de hashes, precisa buscar cada tx
+    for (const txHash of block.transactions) {
+      const tx = await provider.getTransaction(txHash); // pega os detalhes
+
+      const blockTimestamp = new Date(Number(block.timestamp)).toISOString();
+
+      const blockMetadata = {
+        miner: block.miner,
+        difficulty: block.difficulty?.toString(),
+        totalDifficulty: block.totalDifficulty?.toString(),
+        size: block.size,
+        gasUsed: block.gasUsed?.toString(),
+        gasLimit: block.gasLimit?.toString(),
+      };
+
+      transactions.push({
+        hash: tx.hash,
+        from: tx.from,
+        to: tx.to,
+        value: tx.value.toString(),
+        blockNumber: tx.blockNumber,
+        timestamp: blockTimestamp, 
+        blockMetadata, 
+      });
+    }
+  }
+
+  return new Response(JSON.stringify(transactions), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
   });
-
-  return NextResponse.json({ data: items });
 }

@@ -9,10 +9,9 @@ interface Client {
   id: number;
   name: string;
   doc: string;
-  maiden_date: string;
-  aaHash: string;
-  authorizations: string;
-  tokens: number;
+  birthDate: string;
+  ifHash: string;
+  auth_sub: string;
 }
 
 export default function IFsPage() {
@@ -38,17 +37,23 @@ export default function IFsPage() {
   }
 
   const filtered = clients.filter(c =>
-    c.name.toLowerCase().includes(q.toLowerCase()) ||
-    c.doc.toLowerCase().includes(q.toLowerCase()) ||
-    c.aaHash.toLowerCase().includes(q.toLowerCase())
+    c.name?.toLowerCase().includes(q.toLowerCase()) ||
+    c.doc?.toLowerCase().includes(q.toLowerCase()) ||
+    c.ifHash?.toLowerCase().includes(q.toLowerCase())
   );
 
   return (
     <AppLayout>
       <div className="space-y-6">
+        {/* Sticky voltar button */}
+        <Link href="/">
+          <button className="fixed bottom-6 left-6 bg-red-600 text-white px-5 py-2.5 rounded-lg shadow-lg hover:bg-red-700 transition">
+            ← Voltar
+          </button>
+        </Link>
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Base de Instituições Financeiras</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Base de Instituições Participantes</h1>
           <p className="mt-2 text-lg text-gray-600">Consulta de Instituições Autorizadas vinculadas à rede</p>
         </div>
 
@@ -74,7 +79,7 @@ export default function IFsPage() {
 
         {/* Table */}
         <div className="max-w-6xl mx-auto bg-white shadow rounded-lg overflow-hidden">
-          <div className="bg-gray-50 text-center px-6 py-4 border-b border-gray-200">
+          <div className="bg-blue-50 text-center px-6 py-4 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-800">Instituições</h2>
           </div>
 
@@ -93,7 +98,6 @@ export default function IFsPage() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Abertura</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hash AA</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Autorizações</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tokens</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
@@ -106,10 +110,9 @@ export default function IFsPage() {
                         </Link>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-700">{c.doc}</td>
-                      <td className="px-6 py-4 text-sm text-gray-700">{c.maiden_date}</td>
-                      <td className="px-6 py-4 text-sm text-gray-700 truncate max-w-[150px]">{c.aaHash}</td>
-                      <td className="px-6 py-4 text-sm text-gray-700 truncate max-w-[150px]">{c.authorizations}</td>
-                      <td className="px-6 py-4 text-sm text-gray-700 truncate max-w-[150px]">{c.tokens}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700">{c.birthDate}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700 truncate max-w-[150px]">{c.ifHash || '-'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700 truncate max-w-[150px]">{c.auth_sub || '-'}</td>
                     </tr>
                   ))}
                 </tbody>
