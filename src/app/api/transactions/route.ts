@@ -1,35 +1,35 @@
 import { ethers } from 'ethers';
 
-export async function GET() {
-  const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545');
+export async function GET(req: Request) {
+  const provider = new ethers.JsonRpcProvider(process.env.BLOCKCHAIN_RPC_URL);
+
+  // Lê parâmetros de URL
+  const { searchParams } = new URL(req.url);
+  const page = Number(searchParams.get('page')) || 1; // página atual (default 1)
+  const limit = 25; // blocos por página
 
   const latestBlockNumber = await provider.getBlockNumber();
-  const transactions = [];
+  const startBlock = latestBlockNumber - (page - 1) * limit;
+  const endBlock = Math.max(startBlock - limit + 1, 0); // não deixar negativo
 
-  for (let i = latestBlockNumber; i > latestBlockNumber - 10; i--) {
+  const transactions: any[] = [];
+
+  // Varrendo blocos da página atual (do mais recente pro mais antigo)
+  for (let i = startBlock; i >= endBlock; i--) {
     let block;
     try {
       block = await provider.getBlock(i);
-    } catch (err) {
-      console.warn(`Bloco ${i} inválido, pulando.`, err.message);
+    } catch {
       continue;
     }
 
-    if (!block || !block.transactions) continue;
-    // block.transactions é array de hashes, precisa buscar cada tx
+    if (!block?.transactions) continue;
+
     for (const txHash of block.transactions) {
-      const tx = await provider.getTransaction(txHash); // pega os detalhes
+      const tx = await provider.getTransaction(txHash);
+      if (!tx) continue;
 
-      const blockTimestamp = new Date(Number(block.timestamp)).toISOString();
-
-      const blockMetadata = {
-        miner: block.miner,
-        difficulty: block.difficulty?.toString(),
-        totalDifficulty: block.totalDifficulty?.toString(),
-        size: block.size,
-        gasUsed: block.gasUsed?.toString(),
-        gasLimit: block.gasLimit?.toString(),
-      };
+      const blockTimestamp = new Date(block.timestamp * 1000).toISOString();
 
       transactions.push({
         hash: tx.hash,
@@ -37,14 +37,21 @@ export async function GET() {
         to: tx.to,
         value: tx.value.toString(),
         blockNumber: tx.blockNumber,
-        timestamp: blockTimestamp, 
-        blockMetadata, 
+        timestamp: blockTimestamp,
       });
     }
   }
 
-  return new Response(JSON.stringify(transactions), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return new Response(
+    JSON.stringify({
+      data: transactions,
+      page,
+      totalBlocks: latestBlockNumber + 1,
+      totalPages: Math.ceil((latestBlockNumber + 1) / limit),
+    }),
+    {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
 }

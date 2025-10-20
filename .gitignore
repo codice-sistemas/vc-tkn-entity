@@ -29,3 +29,10 @@ Thumbs.db
 
 # Outros
 all.json
+
+# Token Services não validados
+libs/blockchain/tokenService-comVCcorrigida2.ts
+libs/blockchain/tokenService-comVCporUpdate-vazio1.ts
+libs/blockchain/tokenService-cVC-contrato-v3.ts
+libs/blockchain/tokenService.ts-OLD
+libs/blockchain/tokenService.ts-versaoallabisemretorno

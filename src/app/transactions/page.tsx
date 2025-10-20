@@ -9,15 +9,18 @@ export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     async function loadTransactions() {
       try {
         setLoading(true);
-        const res = await fetch('/api/transactions');
+        const res = await fetch(`/api/transactions?page=${page}`);
         if (!res.ok) throw new Error('Erro ao carregar transações');
         const data = await res.json();
-        setTransactions(data);
+        setTransactions(data.data || []);
+        setTotalPages(data.totalPages || 1);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -25,7 +28,7 @@ export default function TransactionsPage() {
       }
     }
     loadTransactions();
-  }, []);
+  }, [page]);
 
   return (
     <AppLayout>
@@ -105,6 +108,24 @@ export default function TransactionsPage() {
               </tbody>
             </table>
           </div>
+          <div className="flex justify-center mt-4 gap-4 mb-3">
+            <button
+              onClick={() => setPage(p => Math.max(p - 1, 1))}
+              disabled={page <= 1}
+              className="px-3 py-1 bg-blue-200 rounded disabled:opacity-50"
+            >
+              ← Anterior
+            </button>
+            <button
+              onClick={() => setPage(p => Math.min(p + 1, totalPages))}
+              disabled={page >= totalPages}
+              className="px-3 py-1 bg-green-200 rounded disabled:opacity-50"
+            >
+              Próxima →
+            </button>
+          </div>
+          {/* Spacer */}
+          <div className="h-1" />        
         </div>
       </div>
     </AppLayout>

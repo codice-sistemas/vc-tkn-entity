@@ -1,0 +1,150 @@
+// tokenService.ts
+import fs from "fs";
+import path from "path";
+import { ethers } from "ethers";
+import type { Log } from "ethers";
+
+type TokenOut = {
+  eventName: string;
+  sender: string | null;
+  IF: string | null;
+  tokenType: string;
+  tokenId?: string; // captura ID se existir
+  txHash?: string;
+  blockNumber?: number;
+};
+
+const provider = new ethers.JsonRpcProvider(process.env.BLOCKCHAIN_RPC_URL);
+
+// Carrega ABI combinada
+const abiRaw = JSON.parse(fs.readFileSync(path.join(process.cwd(), "abi", "all_abis.json"), "utf8"));
+const allAbi = Array.isArray(abiRaw) ? abiRaw : abiRaw;
+
+const iface = new ethers.Interface(allAbi);
+
+// Lista de event fragments para fallback
+const eventFragments = allAbi
+  .filter((x: any) => x?.type === "event")
+  .map((ev: any) => {
+    try {
+      return ethers.EventFragment.from(ev);
+    } catch {
+      return null;
+    }
+  })
+  .filter(Boolean) as ethers.EventFragment[];
+
+// Heurística para extrair campos de qualquer evento
+function extractFieldsFromArgs(name: string, args: any): TokenOut {
+  const get = (names: string[]) => {
+    for (const n of names) {
+      if (Object.prototype.hasOwnProperty.call(args, n)) return args[n];
+    }
+    return undefined;
+  };
+
+  const senderRaw = get(["from", "issuer", "sender", "owner", "creator"]);
+  const ifRaw = get(["to", "IF", "recipient", "account"]);
+  const tokenTypeRaw = get(["tokenType", "type", "classCode", "code", "token_class"]);
+  const tokenIdRaw = get(["id", "tokenId"]);
+
+  return {
+    eventName: name || "Unknown",
+    sender: senderRaw ? String(senderRaw) : null,
+    IF: ifRaw ? String(ifRaw) : null,
+    tokenType: tokenTypeRaw ? String(tokenTypeRaw) : "0",
+    tokenId: tokenIdRaw ? String(tokenIdRaw) : undefined
+  };
+}
+
+// Fallback manual para logs não parseáveis
+function fallbackFromLog(log: Log): TokenOut {
+  const sender = log.topics?.[1] ? "0x" + log.topics[1].slice(-40) : null;
+  let tokenType = "0";
+  let tokenId: string | undefined = undefined;
+  let IF: string | null = null;
+
+  if (log.data && log.data !== "0x") {
+    const d = log.data.slice(2);
+    const f1 = d.slice(0, 64);
+    const f2 = d.slice(64, 128);
+    const f3 = d.slice(128, 192);
+    try { tokenType = f1 ? BigInt("0x" + f1).toString() : "0"; } catch {}
+    IF = f2 ? "0x" + f2.slice(24) : null;
+    tokenId = f3 ? BigInt("0x" + f3).toString() : undefined;
+  }
+
+  return { eventName: "Unknown", sender, IF, tokenType, tokenId };
+}
+
+//
+// Recupera todos os tokens relacionados à hashAA, tentando parseLog,
+// fallback com eventFragments e fallback manual, capturando tokenId se existir.
+//
+export async function getTokensByHashAA(hashAA: string, fromBlock = 0): Promise<TokenOut[]> {
+  const normalizedHash = hashAA.startsWith("0x") ? hashAA.toLowerCase() : "0x" + hashAA.toLowerCase();
+
+  const logs: Log[] = await provider.getLogs({ fromBlock, toBlock: "latest" });
+
+//  console.log(logs);
+
+  const clientLogs = logs.filter(log => {
+    const topicsMatch = log.topics?.some(t => t?.toLowerCase() === normalizedHash);
+    const dataMatch = typeof log.data === "string" && log.data.toLowerCase().includes(normalizedHash.replace(/^0x/, ""));
+    return topicsMatch || dataMatch;
+  });
+
+  const results: TokenOut[] = [];
+
+  for (const log of clientLogs) {
+    // 1) iface.parseLog
+    try {
+      const parsed = iface.parseLog(log);
+      const found = Object.values(parsed.args).some((a: any) => String(a).toLowerCase() === normalizedHash);
+      if (found) {
+        const out = extractFieldsFromArgs(parsed.name || "Unknown", parsed.args);
+        out.txHash = log.transactionHash;
+        out.blockNumber = log.blockNumber;
+        results.push(out);
+        continue;
+      }
+    } catch {}
+
+    // 2) eventFragments
+    let matched = false;
+    for (const frag of eventFragments) {
+      try {
+        const decoded = iface.decodeEventLog(frag, log.data, log.topics);
+        const argsObj: any = decoded;
+        const hasHash = Object.values(argsObj).some((a: any) => String(a).toLowerCase() === normalizedHash);
+        if (hasHash) {
+          const out = extractFieldsFromArgs(frag.name || "Unknown", argsObj);
+          out.txHash = log.transactionHash;
+          out.blockNumber = log.blockNumber;
+          results.push(out);
+          matched = true;
+          break;
+        }
+      } catch {}
+    }
+
+    // 3) fallback manual
+    if (!matched) {
+      const fb = fallbackFromLog(log);
+      if ([fb.sender, fb.IF, fb.tokenType, fb.tokenId].some(v => v?.toLowerCase() === normalizedHash)) {
+        fb.txHash = log.transactionHash;
+        fb.blockNumber = log.blockNumber;
+        results.push(fb);
+      }
+    }
+  }
+
+  // Dedup
+  const uniq = new Map<string, TokenOut>();
+  for (const r of results) {
+    const key = `${r.txHash || ""}#${r.eventName}#${r.sender || ""}#${r.IF || ""}#${r.tokenType || ""}#${r.tokenId || ""}`;
+    if (!uniq.has(key)) uniq.set(key, r);
+  }
+
+  return Array.from(uniq.values());
+}

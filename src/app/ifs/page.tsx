@@ -10,7 +10,7 @@ interface Client {
   name: string;
   doc: string;
   birthDate: string;
-  ifHash: string;
+  vcHash: string;
   auth_sub: string;
 }
 
@@ -39,7 +39,7 @@ export default function IFsPage() {
   const filtered = clients.filter(c =>
     c.name?.toLowerCase().includes(q.toLowerCase()) ||
     c.doc?.toLowerCase().includes(q.toLowerCase()) ||
-    c.ifHash?.toLowerCase().includes(q.toLowerCase())
+    c.vcHash?.toLowerCase().includes(q.toLowerCase())
   );
 
   return (
@@ -111,7 +111,7 @@ export default function IFsPage() {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-700">{c.doc}</td>
                       <td className="px-6 py-4 text-sm text-gray-700">{c.birthDate}</td>
-                      <td className="px-6 py-4 text-sm text-gray-700 truncate max-w-[150px]">{c.ifHash || '-'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-700 truncate max-w-[150px]">{c.vcHash || '-'}</td>
                       <td className="px-6 py-4 text-sm text-gray-700 truncate max-w-[150px]">{c.auth_sub || '-'}</td>
                     </tr>
                   ))}

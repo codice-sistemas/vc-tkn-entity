@@ -1,0 +1,252 @@
+import { Interface, ethers, type Log } from "ethers";
+import fs from "fs";
+import path from "path";
+
+type TokenOut = {
+  eventName: string;
+  sender: string | null;
+  IF: string | null;
+  tokenType: string;
+  tokenId?: string;
+  txHash?: string;
+  blockNumber?: number;
+};
+
+const provider = new ethers.JsonRpcProvider(process.env.BLOCKCHAIN_RPC_URL);
+
+// Carrega todas as ABIs
+const abiRaw = JSON.parse(fs.readFileSync(path.join(process.cwd(), "abi", "all_abis.json"), "utf8"));
+const allAbi = Array.isArray(abiRaw) ? abiRaw : abiRaw;
+
+// Converte todas as ABIs em Interfaces
+//const allInterfaces = Object.values(allAbi).map((abi: any) => new ethers.Interface(abi));
+const allInterfaces: Interface[] = [];
+
+if (Array.isArray(allAbi)) {
+  for (const abi of allAbi) {
+    if (Array.isArray(abi)) allInterfaces.push(new ethers.Interface(abi));
+    else if (abi?.abi) allInterfaces.push(new ethers.Interface(abi.abi));
+  }
+} else {
+  for (const key of Object.keys(allAbi)) {
+    const abiItem = allAbi[key];
+    if (Array.isArray(abiItem)) allInterfaces.push(new ethers.Interface(abiItem));
+    else if (abiItem?.abi) allInterfaces.push(new ethers.Interface(abiItem.abi));
+  }
+}
+// Lista de event fragments para fallback
+const eventFragments = allAbi
+  .filter((x: any) => x?.type === "event")
+  .map((ev: any) => {
+    try { return ethers.EventFragment.from(ev); } catch { return null; }
+  })
+  .filter(Boolean) as ethers.EventFragment[];
+
+// --- Função de fallback manual se necessário ---
+function fallbackFromLog(log: Log): TokenOut {
+  // fallback genérico
+  const data = log.data || "";
+  const topic = log.topics?.[1] || "";
+  return {
+    eventName: "UnknownFallback",
+    sender: topic ? "0x" + topic.slice(-40) : null,
+    IF: null,
+    tokenType: "0",
+    tokenId: data ? parseInt(data.slice(-8), 16).toString() : undefined,
+    txHash: log.transactionHash,
+    blockNumber: log.blockNumber
+  };
+}
+
+// --- Reuso da sua função extractFieldsFromArgs ---
+function extractFieldsFromArgs(name: string, args: any): TokenOut {
+  const get = (names: string[]) => {
+    for (const n of names) if (Object.prototype.hasOwnProperty.call(args, n)) return args[n];
+    return undefined;
+  };
+
+  const senderRaw = get(["from", "issuer", "sender", "owner", "creator"]);
+  const ifRaw = get(["to", "IF", "recipient", "account"]);
+  const tokenTypeRaw = get(["tokenType", "type", "classCode", "code", "token_class"]);
+  const tokenIdRaw = get(["id", "tokenId"]);
+
+  return {
+    eventName: name || "Unknown",
+    sender: senderRaw ? String(senderRaw) : null,
+    IF: ifRaw ? String(ifRaw) : null,
+    tokenType: tokenTypeRaw ? String(tokenTypeRaw) : "0",
+    tokenId: tokenIdRaw ? String(tokenIdRaw) : undefined
+  };
+}
+
+// --- Função para descobrir AddressDiscovery via UpdateAddress ---
+async function discoverAddressDiscovery(): Promise<string | null> {
+  try {
+    const artifactPath = path.join(process.cwd(), "artifacts/contracts/AddressDiscovery.sol/AddressDiscovery.json");
+    const AddressDiscoveryArtifact = JSON.parse(fs.readFileSync(artifactPath, "utf8"));
+    const iface = new Interface(AddressDiscoveryArtifact.abi);
+    const eventTopic = iface.getEvent("UpdateAddress").topic;
+
+    const logs = await provider.getLogs({
+      fromBlock: 0,
+      toBlock: "latest",
+      topics: [eventTopic],
+    });
+
+    if (logs.length > 0) {
+      return logs[0].address;
+    }
+  } catch {}
+  return null;
+}
+
+// --- Função principal ---
+export async function getTokensByHashAA(hashAA: string, fromBlock = 0): Promise<TokenOut[]> {
+  const normalizedHash = hashAA.startsWith("0x") ? hashAA.toLowerCase() : "0x" + hashAA.toLowerCase();
+
+  // --- Descobre AddressDiscovery ou fixa manualmente ---
+  let AD_ADDRESS: string | null = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"; // ajuste se necessário
+  if (!AD_ADDRESS) AD_ADDRESS = await discoverAddressDiscovery();
+
+  // --- Busca AccountFactory e SmartAccountAddress ---
+  let smartAccountAddress: string | null = null;
+  if (AD_ADDRESS) {
+    try {
+      const AD_MINIMAL_ABI = ["function addressDiscovery(bytes32 key) external view returns (address)"];
+      const ad = new ethers.Contract(AD_ADDRESS, AD_MINIMAL_ABI, provider);
+      const factoryKey = ethers.keccak256(ethers.toUtf8Bytes("AccountFactory"));
+      const factoryAddress = await ad.addressDiscovery(factoryKey);
+      if (factoryAddress && factoryAddress !== ethers.ZeroAddress) {
+        const FACTORY_ABI = ["function getAccount(bytes32 hashClient) external view returns (address)"];
+        const factory = new ethers.Contract(factoryAddress, FACTORY_ABI, provider);
+        smartAccountAddress = await factory.getAccount(normalizedHash);
+        if (smartAccountAddress === ethers.ZeroAddress) smartAccountAddress = null;
+      }
+    } catch {}
+  }
+
+  // --- fallback se hashAA já for endereço ---
+  if (!smartAccountAddress && /^0x[0-9a-f]{40}$/.test(normalizedHash)) {
+    smartAccountAddress = normalizedHash;
+  }
+
+  // --- Construir lista de candidateAddresses via AddressDiscovery logs ---
+  let candidateAddresses: string[] = [];
+  if (AD_ADDRESS) {
+    try {
+      const artifactPath = path.join(process.cwd(), "artifacts/contracts/AddressDiscovery.sol/AddressDiscovery.json");
+      const AddressDiscoveryArtifact = JSON.parse(fs.readFileSync(artifactPath, "utf8"));
+      const adIface = new ethers.Interface(AddressDiscoveryArtifact.abi);
+      const updateTopic = adIface.getEvent("UpdateAddress").topic;
+
+      const adLogs = await provider.getLogs({
+        fromBlock,
+        toBlock: "latest",
+        address: AD_ADDRESS,
+        topics: [updateTopic]
+      });
+
+      const addrsSet = new Set<string>();
+      for (const l of adLogs) {
+        let addr: string | null = null;
+        try {
+          const parsed = adIface.decodeEventLog("UpdateAddress", l.data, l.topics);
+          addr = parsed.newAddress;
+        } catch {
+          if (l.data && l.data.length >= 66) {
+            const a = "0x" + l.data.slice(-40);
+            try { addr = ethers.getAddress(a); } catch { addr = null; }
+          }
+        }
+        if (addr && addr !== ethers.ZeroAddress) {
+          try {
+            const code = await provider.getCode(addr);
+            if (code && code !== "0x") addrsSet.add(ethers.getAddress(addr));
+          } catch { addrsSet.add(ethers.getAddress(addr)); }
+        }
+      }
+      candidateAddresses = Array.from(addrsSet);
+    } catch {}
+  }
+
+  // --- Funções auxiliares ---
+  const accountCheck = (log: Log) => {
+    const targetAddr = smartAccountAddress?.toLowerCase().replace(/^0x/, "");
+    const targetHash = normalizedHash.replace(/^0x/, "");
+    if (targetAddr && log.topics?.some(t => t?.toLowerCase().endsWith(targetAddr))) return true;
+    if (targetAddr && log.data?.toLowerCase().includes(targetAddr)) return true;
+    if (log.data?.toLowerCase().includes(targetHash)) return true;
+    if (log.topics?.some(t => t?.toLowerCase().includes(targetHash))) return true;
+    return false;
+  };
+
+  const results: TokenOut[] = [];
+
+  const processLogs = (logsBatch: Log[]) => {
+    for (const log of logsBatch) {
+      if (!accountCheck(log)) continue;
+
+      let parsed: any = null;
+      for (const iface of allInterfaces) {
+        try { parsed = iface.parseLog(log); break; } catch {}
+      }
+
+      if (parsed) {
+        const out = extractFieldsFromArgs(parsed.name || "Unknown", parsed.args);
+        out.txHash = log.transactionHash;
+        out.blockNumber = log.blockNumber;
+        results.push(out);
+        continue;
+      }
+
+      let matched = false;
+      for (const frag of eventFragments) {
+        try {
+          const decoded = allInterfaces[0].decodeEventLog(frag, log.data, log.topics);
+          const hasClient = Object.values(decoded).some((a: any) => a && String(a).toLowerCase().includes(normalizedHash.replace(/^0x/, "")));
+          if (!hasClient) continue;
+          const out = extractFieldsFromArgs(frag.name || "Unknown", decoded);
+          out.txHash = log.transactionHash;
+          out.blockNumber = log.blockNumber;
+          results.push(out);
+          matched = true;
+          break;
+        } catch {}
+      }
+      if (matched) continue;
+
+      try {
+        const fb = fallbackFromLog(log);
+        if ([fb.sender, fb.IF, fb.tokenType, fb.tokenId].some(v => v && v.toLowerCase().includes(normalizedHash.replace(/^0x/, "")))) {
+          fb.txHash = log.transactionHash;
+          fb.blockNumber = log.blockNumber;
+          results.push(fb);
+        }
+      } catch {}
+    }
+  };
+
+  // --- Executa busca ---
+  if (candidateAddresses.length > 0) {
+    for (const addr of candidateAddresses) {
+      try {
+        const logs = await provider.getLogs({ fromBlock, toBlock: "latest", address: addr });
+        processLogs(logs);
+      } catch {}
+    }
+  } else {
+    try {
+      const logs = await provider.getLogs({ fromBlock, toBlock: "latest" });
+      processLogs(logs);
+    } catch {}
+  }
+
+  // --- Dedup ---
+  const uniq = new Map<string, TokenOut>();
+  for (const r of results) {
+    const key = `${r.txHash || ""}#${r.eventName}#${r.sender || ""}#${r.IF || ""}#${r.tokenType || ""}#${r.tokenId || ""}`;
+    if (!uniq.has(key)) uniq.set(key, r);
+  }
+
+  return Array.from(uniq.values());
+}

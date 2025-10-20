@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import { initDB } from '@/libs/mysql/db-mysql';
 import { UserRepository } from '@/libs/mysql/userRepository-mysql';
-import { getTokensByHash } from '@/libs/blockchain/tokenService';
+import { getTokensByHashAA } from '@/libs/blockchain/tokenService';
 
 export async function GET(
   req: Request,
@@ -18,12 +18,13 @@ export async function GET(
   }
 
   // Consulta tokens na blockchain
-  const tokens = await getTokensByHash(user.vcHash || user.ifHash);
+//  const tokens = await getTokensByHashAA(user.vcHash || user.ifHash);
+  const tokens = await getTokensByHashAA(user.vcHash);
 
   await db.end();
 
   return NextResponse.json({
-    user,
-    tokens
+    user: user,
+    tokens: Array.from(tokens.values())
   });
 }

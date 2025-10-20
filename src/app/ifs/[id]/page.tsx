@@ -83,7 +83,7 @@ export default function ClientDetailsPage() {
                         Hash AA
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-800 truncate max-w-[300px]">
-                        {data.user.ifHash || '-'}
+                        {data.user.vcHash || '-'}
                       </td>
                     </tr>
                     <tr>
@@ -124,9 +124,9 @@ export default function ClientDetailsPage() {
                               <tbody className="divide-y divide-gray-100">
                                 {data.tokens.map((t: any, i: number) => (
                                   <tr key={i} className="hover:bg-gray-50">
-                                    <td className="px-4 py-2">{t.name}</td>
-                                    <td className="px-4 py-2">{t.tokenId}</td>
-                                    <td className="px-4 py-2">{t.balance}</td>
+                                    <td className="px-4 py-2">{t.eventName}</td>
+                                    <td className="px-4 py-2">{t.tokenType}</td>
+                                    <td className="px-4 py-2">{t.txHash}</td>
                                   </tr>
                                 ))}
                               </tbody>
