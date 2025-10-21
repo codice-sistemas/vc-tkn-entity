@@ -4,8 +4,8 @@ services:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: 
-      MYSQL_DATABASE: vc_tkn
+      MYSQL_ROOT_PASSWORD: vc-tkn-pwd
+      MYSQL_DATABASE: vc_tknusers
       MYSQL_USER: vc-tkn-usr
       MYSQL_PASSWORD: vc-tkn-pwd
     ports:
