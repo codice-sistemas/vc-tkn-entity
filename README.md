@@ -7,7 +7,7 @@ Este README descreve passo a passo como configurar e rodar o projeto, incluindo 
 
 # Base de Dados
 
-Usa o do repositório vc-tkn
+Usa do repositório vc-tkn
 
 # Passos para Rodar o Projeto
 

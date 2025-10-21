@@ -30,6 +30,11 @@ Thumbs.db
 # Outros
 all.json
 
+# prisma
+prisma/schema.prisma-ORIGINAL
+seed.ts-POPULARBASE
+
+
 # Token Services não validados
 libs/blockchain/tokenService-comVCcorrigida2.ts
 libs/blockchain/tokenService-comVCporUpdate-vazio1.ts
