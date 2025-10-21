@@ -1,6 +1,7 @@
 # vc-tkn-entity
 App da Entidade Centralizadora
 
+
 # Projeto - Como Rodar
 
 Este README descreve passo a passo como configurar e rodar o projeto, incluindo banco de dados, dependências e serviços auxiliares.
@@ -8,6 +9,7 @@ Este README descreve passo a passo como configurar e rodar o projeto, incluindo 
 # Base de Dados
 
 Usa do repositório vc-tkn
+
 
 # Passos para Rodar o Projeto
 
@@ -17,7 +19,20 @@ cp .env.example .env
 
 Atualizar as varíaveis em .env
 
-Instalar dependências do projeto:
+Variável ADDRESS_DISCOVERY deve ser atualizada com o endereço disponível no repositório vc-tkn em: src/configs/besu.json
+
+
+**Instalar dependências do projeto:**
+
+# vc-tkn
+
+Utiliza cópia "local" dos contratos AccountFactory, AddressDiscovery e ComplianceTokenRegistry
+Subir para o repositório de implantação a pasta: artifacts
+
+Utiliza cópia "local" da abi dos contratos
+Subir para o repositório de implantação a pasta: abi
+
+*manter a estrutura para não quebrar o caminho das variáveis em .env*
 
 # TailwindCSS e PostCSS
 npm install -D tailwindcss@3 postcss@8 autoprefixer@10
@@ -42,9 +57,6 @@ npm install react-hot-toast
 npm install @heroicons/react
 npm install @headlessui/react
 
-# Prisma
-npm install prisma @prisma/client
-
 # JWT / Criptografia
 npm install jose
 
@@ -55,10 +67,6 @@ pnpm install || npm install
 # Rodar o projeto:
 
 npm run dev
-
-# Rodar o indexer em outro terminal:
-
-npm run indexer:dev
 
 # Observações
 
