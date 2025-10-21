@@ -5,17 +5,29 @@ App da Entidade Centralizadora
 
 Este README descreve passo a passo como configurar e rodar o projeto, incluindo banco de dados, dependências e serviços auxiliares.
 
-# Base de Dados
+## Base de Dados
 
-Usa o do repositório vc-tkn
+- Criação da base de dados: `app/libs/mysql/db-mysql.ts`
+- Criação das tabelas e inserção de dados: `prisma/schema.prisma` e `prisma/seed.ts`
 
-# Passos para Rodar o Projeto
+> No `package.json`, adicione a seguinte configuração de seed (comentada para não quebrar o arquivo):
+```
+"prisma": {
+    "seed": "node --loader ts-node/esm prisma/seed.ts"
+ }
+````
+
+Passos para Rodar o Projeto
 
 Copie o arquivo .env.example para .env e ajuste as variáveis:
 
 cp .env.example .env
 
-Atualizar as varíaveis em .env
+
+(Opcional) Rodar serviços via Docker (MySQL, Redis, Besu):
+
+docker compose up -d
+
 
 Instalar dependências do projeto:
 
@@ -52,18 +64,25 @@ npm install jose
 pnpm install || npm install
 
 
-# Rodar o projeto:
+Gerar Prisma Client e aplicar migrações:
+
+npx prisma generate
+npx prisma migrate dev --name init
+
+
+Rodar o projeto:
 
 npm run dev
 
-# Rodar o indexer em outro terminal:
+
+Rodar o indexer em outro terminal:
 
 npm run indexer:dev
 
-# Observações
+Observações
 
 Arquivos já versionados no Git não serão ignorados automaticamente pelo .gitignore.
 
 Ajuste variáveis de ambiente no .env conforme seu ambiente local.
 
-Certifique-se de que Besu, RPC e MySQL estão rodando antes de iniciar o projeto.
+Certifique-se de que MySQL, Redis e Besu estão rodando antes de iniciar o projeto.
