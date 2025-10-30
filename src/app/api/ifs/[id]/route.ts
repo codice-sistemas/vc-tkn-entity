@@ -25,6 +25,7 @@ export async function GET(
 
   return NextResponse.json({
     user: user,
-    tokens: Array.from(tokens.values())
+//    tokens: Array.from(tokens.values())
+    tokens: Array.from(tokens.tokens)
   });
 }

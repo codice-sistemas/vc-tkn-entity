@@ -1,0 +1,532 @@
+[
+	{
+		"code": 1,
+		"name": "Identificação e documentação pessoal"
+	},
+	{
+		"code": 2,
+		"name": "Profissão"
+	},
+	{
+		"code": 3,
+		"name": "Comprovante de residência"
+	},
+	{
+		"code": 4,
+		"name": "Comprovação de renda",
+		"required": [
+			{
+				"name": "Valor da renda anual",
+				"label": "valor_renda",
+				"type": "money",
+				"field": "value_1"
+			},
+			{
+				"name": "Origem declarada da renda",
+				"label": "origem_declarada",
+				"type": "string",
+				"field": "tokenInfo"
+			},
+			{
+				"name": "Período de comprovação",
+				"label": "periodo_comprovacao",
+				"type": "date",
+				"field": "date_1"
+			}
+		],
+		"extra": [
+			{
+				"name": "Data do documento",
+				"label": "data_documento",
+				"type": "date",
+				"field": "date_2"
+			}
+		]
+	},
+	{
+		"code": 5,
+		"name": "Negativado em dívidas anteriores"
+	},
+	{
+		"code": 6,
+		"name": "Reputação de crédito (Registrato)",
+		"required": [
+			{
+				"name": "Pontuação de reputação de crédito",
+				"label": "pontuacao_credito",
+				"type": "int",
+				"field": "value_1"
+			}
+		]
+	},
+	{
+		"code": 7,
+		"name": "Identificação e documentação pessoal (válido)"
+	},
+	{
+		"code": 8,
+		"name": "Profissão (atuação no mercado)"
+	},
+	{
+		"code": 9,
+		"name": "Comprovante de residência"
+	},
+	{
+		"code": 10,
+		"name": "PPE nacional",
+		"required": [
+			{
+				"name": "Consta na lista",
+				"label": "consta_na_lista",
+				"type": "bool",
+				"field": "bool_1"
+			}
+		],
+		"extra": [
+			{
+				"name": "Valor da operação",
+				"label": "valor_cambio",
+				"type": "money",
+				"field": "value_1"
+			},
+			{
+				"name": "Valor acumulado de operações anteriores",
+				"label": "valor_acumulado",
+				"type": "money",
+				"field": "value_2"
+			},
+			{
+				"name": "Quantidade de operações acumulada",
+				"label": "operacoes",
+				"type": "int",
+				"field": "value_3"
+			},
+			{
+				"name": "Falso positivo",
+				"label": "falso_positivo",
+				"type": "bool",
+				"field": "bool_2"
+			}
+		]
+	},
+	{
+		"code": 11,
+		"name": "PPE Internacional",
+		"required": [
+			{
+				"name": "Consta na lista",
+				"label": "consta_na_lista",
+				"type": "bool",
+				"field": "bool_1"
+			}
+		],
+		"extra": [
+			{
+				"name": "Valor da operação",
+				"label": "valor_cambio",
+				"type": "money",
+				"field": "value_1"
+			},
+			{
+				"name": "Valor acumulado de operações anteriores",
+				"label": "valor_acumulado",
+				"type": "money",
+				"field": "value_2"
+			},
+			{
+				"name": "Quantidade de operações acumulada",
+				"label": "operacoes",
+				"type": "int",
+				"field": "value_3"
+			},
+			{
+				"name": "Falso positivo",
+				"label": "falso_positivo",
+				"type": "bool",
+				"field": "bool_2"
+			}
+		]
+	},
+	{
+		"code": 12,
+		"name": "PPE Relacionado",
+		"required": [
+			{
+				"name": "Consta na lista",
+				"label": "consta_na_lista",
+				"type": "bool",
+				"field": "bool_1"
+			}
+		],
+		"extra": [
+			{
+				"name": "Valor da operação",
+				"label": "valor_cambio",
+				"type": "money",
+				"field": "value_1"
+			},
+			{
+				"name": "Valor acumulado de operações anteriores",
+				"label": "valor_acumulado",
+				"type": "money",
+				"field": "value_2"
+			},
+			{
+				"name": "Quantidade de operações acumulada",
+				"label": "operacoes",
+				"type": "int",
+				"field": "value_3"
+			},
+			{
+				"name": "Falso positivo",
+				"label": "falso_positivo",
+				"type": "bool",
+				"field": "bool_2"
+			}
+		]
+	},
+	{
+		"code": 13,
+		"name": "Situação em listas restritivas",
+		"required": [
+			{
+				"name": "Consta na lista",
+				"label": "consta_na_lista",
+				"type": "bool",
+				"field": "bool_1"
+			}
+		],
+		"extra": [
+			{
+				"name": "Falso positivo",
+				"label": "falso_positivo",
+				"type": "bool",
+				"field": "bool_2"
+			}
+		]
+	},
+	{
+		"code": 14,
+		"name": "Situação em programas sociais",
+		"required": [
+			{
+				"name": "Consta na lista",
+				"label": "consta_na_lista",
+				"type": "bool",
+				"field": "bool_1"
+			}
+		],
+		"extra": [
+			{
+				"name": "Falso positivo",
+				"label": "falso_positivo",
+				"type": "bool",
+				"field": "bool_2"
+			}
+		]
+	},
+	{
+		"code": 15,
+		"name": "Situação em benefícios federais",
+		"required": [
+			{
+				"name": "Consta na lista",
+				"label": "consta_na_lista",
+				"type": "bool",
+				"field": "bool_1"
+			}
+		],
+		"extra": [
+			{
+				"name": "Falso positivo",
+				"label": "falso_positivo",
+				"type": "bool",
+				"field": "bool_2"
+			}
+		]
+	},
+	{
+		"code": 16,
+		"name": "Situação em sanções federais",
+		"required": [
+			{
+				"name": "Consta na lista",
+				"label": "consta_na_lista",
+				"type": "bool",
+				"field": "bool_1"
+			}
+		],
+		"extra": [
+			{
+				"name": "Falso positivo",
+				"label": "falso_positivo",
+				"type": "bool",
+				"field": "bool_2"
+			}
+		]
+	},
+	{
+		"code": 17,
+		"name": "Validação online de renda",
+		"required": [
+			{
+				"name": "Valor da renda anual",
+				"label": "valor_renda",
+				"type": "money",
+				"field": "value_1"
+			},
+			{
+				"name": "Origem da renda",
+				"label": "origem_renda",
+				"type": "string",
+				"field": "tokenInfo"
+			},
+			{
+				"name": "Período de comprovação",
+				"label": "periodo_comprovacao",
+				"type": "date",
+				"field": "date_1"
+			}
+		],
+		"extra": [
+			{
+				"name": "Data da consulta",
+				"label": "data_consulta",
+				"type": "date",
+				"field": "date_2"
+			}
+		]
+	},
+	{
+		"code": 18,
+		"name": "Risco geográfico",
+		"required": [
+			{
+				"name": "Consta na lista",
+				"label": "consta_na_lista",
+				"type": "bool",
+				"field": "bool_1"
+			}
+		],
+		"extra": [
+			{
+				"name": "Falso positivo",
+				"label": "falso_positivo",
+				"type": "bool",
+				"field": "bool_2"
+			}
+		]
+	},
+	{
+		"code": 19,
+		"name": "Risco de atividade",
+		"required": [
+			{
+				"name": "Consta na lista",
+				"label": "consta_na_lista",
+				"type": "bool",
+				"field": "bool_1"
+			}
+		],
+		"extra": [
+			{
+				"name": "Falso positivo",
+				"label": "falso_positivo",
+				"type": "bool",
+				"field": "bool_2"
+			}
+		]
+	},
+	{
+		"code": 20000000,
+		"name": "Garantia",
+		"required": [
+			{
+				"name": "Valor da garantia",
+				"label": "valor_garantia",
+				"type": "money",
+				"field": "value_1"
+			}
+		]
+	},
+	{
+		"code": 80000000,
+		"name": "Compliance de Câmbio",
+		"isResultOverride": true,
+		"required": [
+			{
+				"name": "Valor da operação",
+				"label": "valor_cambio",
+				"type": "money",
+				"field": "value_1"
+			}
+		],
+		"rules": [
+			{
+				"name": "ValidDocumentation",
+				"abi": "ValidDocumentation",
+				"desc": "Documentação válida"
+			},
+			{
+				"name": "validOcupation",
+				"abi": "ValidOcupation",
+				"desc": "Ocupação válida"
+			},
+			{
+				"name": "validIncome",
+				"abi": "ValidIncome",
+				"desc": "Comprovação de renda anual"
+			},
+			{
+				"name": "validAddress",
+				"abi": "ValidAddress",
+				"desc": "Comprovante de endereço"
+			},
+			{
+				"name": "ppeNational",
+				"abi": "PPENational",
+				"desc": "PPE Nacional"
+			},
+			{
+				"name": "ppeInternational",
+				"abi": "PPEInternational",
+				"desc": "PPE Internacional"
+			},
+			{
+				"name": "ppeRelacted",
+				"abi": "PPERelacted",
+				"desc": "PPE Relacionado"
+			},
+			{
+				"name": "federalPenalityList",
+				"abi": "FederalPenalityList",
+				"desc": "Lista de sansões federais"
+			},
+			{
+				"name": "federalSocialList",
+				"abi": "FederalSocialList",
+				"desc": "Lista de benefícios Federais"
+			},
+			{
+				"name": "restrictiveList",
+				"abi": "RestrictiveList",
+				"desc": "Listas restritivas"
+			},
+			{
+				"name": "socialProgamList",
+				"abi": "SocialProgamList",
+				"desc": "Programa social"
+			},
+			{
+				"name": "onlineIncome",
+				"abi": "OnlineIncome",
+				"desc": "Validação Online de renda"
+			},
+			{
+				"name": "jurisditionalRisk",
+				"abi": "JurisditionalRisk",
+				"desc": "Risco de jurisdição"
+			},
+			{
+				"name": "occupationalRisk",
+				"abi": "OccupationalRisk",
+				"desc": "Risco de profissão"
+			}
+		]
+	},
+	{
+		"code": 80000001,
+		"isResultOverride": true,
+		"name": "Compliance de Credito (com garantia)",
+		"required": [
+			{
+				"name": "Valor do crédito",
+				"label": "valor_credito",
+				"type": "money",
+				"field": "value_1"
+			}
+		],
+		"rules": [
+			{
+				"name": "ValidDocumentation",
+				"abi": "ValidDocumentation",
+				"desc": "Documentação válida"
+			},
+			{
+				"name": "SufficientGuarantee",
+				"abi": "SufficientGuarantee",
+				"desc": "Garantia precisa ser suficiente"
+			},
+			{
+				"name": "validOcupation",
+				"abi": "ValidOcupation",
+				"desc": "Ocupação válida"
+			},
+			{
+				"name": "validIncome",
+				"abi": "ValidIncome",
+				"desc": "Comprovação de renda anual"
+			},
+			{
+				"name": "validAddress",
+				"abi": "ValidAddress",
+				"desc": "Comprovante de endereço"
+			},
+			{
+				"name": "noPreviousDebt",
+				"abi": "NoPreviousDebt",
+				"desc": "Negativado em dividas anteriores"
+			},
+			{
+				"name": "creditRegistratoPoints",
+				"abi": "CreditRegistratoPoints",
+				"desc": "Pontuação de crédito maior que 999"
+			}
+		]
+	},
+	{
+		"code": 80000002,
+		"isResultOverride": true,
+		"name": "Compliance de Credito (sem garantia)",
+		"required": [
+			{
+				"name": "Valor do crédito",
+				"label": "valor_credito",
+				"type": "money",
+				"field": "value_1"
+			}
+		],
+		"rules": [
+			{
+				"name": "ValidDocumentation",
+				"abi": "ValidDocumentation",
+				"desc": "Documentação válida"
+			},
+			{
+				"name": "validOcupation",
+				"abi": "ValidOcupation",
+				"desc": "Ocupação válida"
+			},
+			{
+				"name": "validIncome",
+				"abi": "ValidIncome",
+				"desc": "Comprovação de renda anual"
+			},
+			{
+				"name": "validAddress",
+				"abi": "ValidAddress",
+				"desc": "Comprovante de endereço"
+			},
+			{
+				"name": "noPreviousDebt",
+				"abi": "NoPreviousDebt",
+				"desc": "Negativado em dividas anteriores"
+			},
+			{
+				"name": "creditRegistratoPoints",
+				"abi": "CreditRegistratoPoints",
+				"desc": "Pontuação de crédito maior que 999"
+			}
+		]
+	}
+]

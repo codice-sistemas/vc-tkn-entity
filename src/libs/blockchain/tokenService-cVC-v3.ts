@@ -7,7 +7,8 @@ const provider = new ethers.JsonRpcProvider(process.env.BLOCKCHAIN_RPC_URL);
 
 // --- Configurável: endereço do AddressDiscovery (fixo na sua rede)
 //const AD_ADDRESS = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9";
-const AD_ADDRESS = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
+//const AD_ADDRESS = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
+const AD_ADDRESS = process.env.ADDRESS_DISCOVERY;
 // --- 1) Resolve o endereço real da carteira (smart account)
 async function getSmartAccountAddress(hashAA: string): Promise<string | null> {
   const AD_ABI = [
@@ -28,6 +29,7 @@ async function getSmartAccountAddress(hashAA: string): Promise<string | null> {
   const smartAccountAddress = await factory.getAccount(hashAA);
   if (smartAccountAddress === ethers.ZeroAddress) return null;
 
+  console.log(smartAccountAddress);
 //  return ethers.getAddress(smartAccountAddress);
   return smartAccountAddress;
 }
@@ -94,7 +96,6 @@ async function getTokensForSmartAccount(
         const parsed = iface.parseLog(log);
         const args = parsed.args;
 
-        console.log(log);
         // verifica se a carteira está envolvida (sender, to, owner, etc.)
         const involved = Object.values(args).some(
           (a) =>
@@ -102,6 +103,7 @@ async function getTokensForSmartAccount(
             a.toLowerCase() === smartAddr.toLowerCase()
         );
         if (involved) {
+          console.log(log);
           results.push({
             event: parsed.name,
             contract: tokenRegistryAddr,

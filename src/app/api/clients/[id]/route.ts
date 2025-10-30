@@ -24,11 +24,12 @@ export async function GET(
 
   await db.end();
 
-  console.log(tokens.values());
+//  console.log(tokens.values());
 
   return NextResponse.json({
     user: user,
-    tokens: Array.from(tokens.values())
+//    tokens: Array.from(tokens.values())
+    tokens: Array.from(tokens.tokens)
 //    tokens: Array.from(tokens.values(), token => token.toString())
   });
 }
