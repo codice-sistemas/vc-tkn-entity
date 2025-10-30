@@ -114,7 +114,7 @@ export default function ClientDetailsPage() {
                                     Nome
                                   </th>
                                   <th className="px-4 py-2 text-left font-medium text-gray-600">
-                                    Token ID
+                                    Token
                                   </th>
                                   <th className="px-4 py-2 text-left font-medium text-gray-600">
                                     Hash
