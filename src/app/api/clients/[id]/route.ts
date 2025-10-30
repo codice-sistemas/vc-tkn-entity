@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import { initDB } from '@/libs/mysql/db-mysql';
 import { UserRepository } from '@/libs/mysql/userRepository-mysql';
-import { getTokensByHashAA } from '@/libs/blockchain/tokenService';
+import { getTokensByHashAA } from '@/./libs/blockchain/tokenService';
 
 export async function GET(
   req: Request,
@@ -28,8 +28,6 @@ export async function GET(
 
   return NextResponse.json({
     user: user,
-//    tokens: Array.from(tokens.values())
     tokens: Array.from(tokens.tokens)
-//    tokens: Array.from(tokens.values(), token => token.toString())
   });
 }

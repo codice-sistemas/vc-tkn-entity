@@ -48,7 +48,6 @@ async function getSmartAccountAddress(hashAA: string): Promise<string | null> {
   const smartAccountAddress = await factory.getAccount(hashAA);
   if (smartAccountAddress === ethers.ZeroAddress) return null;
 
-//  return ethers.getAddress(smartAccountAddress);
   return smartAccountAddress;
 }
 

@@ -1,4 +1,3 @@
-//import { BusinessError } from "../errors/BusinessError";
 import { getDb } from "./db-mysql";
 
 export interface IRequest {
